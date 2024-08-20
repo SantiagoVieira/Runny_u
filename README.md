@@ -1,2 +1,2 @@
 # Runny_u
-Proyecto Lenguajes y paradigas de programación
+Proyecto Lenguajes y paradigmas de programación
