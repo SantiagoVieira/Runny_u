@@ -1,0 +1,16 @@
+{
+  "name": "runny_u",
+  "version": "1.0.0",
+  "description": "Proyecto Lenguajes y paradigmas de programación",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.0",
+    "mongoose": "^8.7.0"
+  }
+}
