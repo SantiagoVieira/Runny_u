@@ -12,4 +12,4 @@ const orderSchema = new mongoose.Schema({
   id_pedido: Number,
 });
 
-module.exports = mongoose.model('Order', orderSchema);
+module.exports = mongoose.model('Order', orderSchema, 'pedido');

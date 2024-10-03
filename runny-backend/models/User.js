@@ -10,4 +10,4 @@ const userSchema = new mongoose.Schema({
   carrito_usuario: String,
 });
 
-module.exports = mongoose.model('User', userSchema);
+module.exports = mongoose.model('User', userSchema, 'Usuario');

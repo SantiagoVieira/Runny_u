@@ -14,4 +14,4 @@ const restaurantSchema = new mongoose.Schema({
   pedidos_programados: Boolean,
 });
 
-module.exports = mongoose.model('Restaurant', restaurantSchema);
+module.exports = mongoose.model('Restaurant', restaurantSchema, 'Restaurante');

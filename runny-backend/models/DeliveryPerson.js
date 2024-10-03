@@ -9,4 +9,4 @@ const deliveryPersonSchema = new mongoose.Schema({
   calificacion_repartidor: [Number],
 });
 
-module.exports = mongoose.model('DeliveryPerson', deliveryPersonSchema);
+module.exports = mongoose.model('DeliveryPerson', deliveryPersonSchema, 'Repartidor');
