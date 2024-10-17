@@ -1,5 +1,5 @@
 // cartController.js
-let cart = []; // Almacenamos los productos del carrito
+let cart = []; 
 
 exports.addToCart = (req, res) => {
     const { id, name, price, description } = req.body; 
@@ -38,4 +38,26 @@ exports.removeFromCart = (req, res) => {
     cart = cart.filter(item => item.id != id); 
 
     res.status(200).json({ message: 'Item eliminado del carrito', cart });
+};
+
+exports.applyPromotion = (req, res) => {
+    const { promotionId } = req.body;
+    const promotion = promotions.find(promo => promo.id === promotionId);
+
+    if (promotion) {
+        
+        if (promotion.type === 'buyOneGetOne') {
+            cart.forEach(item => {
+                item.quantity += 1; // Duplicar la cantidad de productos
+            });
+        } else if (promotion.discount) {
+            cart.forEach(item => {
+                item.price *= (1 - promotion.discount); // Aplicar descuento al precio
+            });
+        }
+
+        res.json({ message: 'Promocion aplicada.', cart });
+    } else {
+        res.status(404).json({ message: 'Promoción no encontrada.' });
+    }
 };
