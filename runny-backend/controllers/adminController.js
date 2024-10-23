@@ -1,60 +1,35 @@
 // adminController.js
-const stores = [
-    { id: 1, name: 'Cafeteria Central', description: 'Cafeteria con variedad de cafes y pasteles.', menu: [] },
-    { id: 2, name: 'Restaurante Universitario', description: 'Comida casera y saludable.', menu: [] },
-];
+const Restaurant = require('../models/Restaurant');
 
-// Metodo para actualizar el menu de una tienda
-exports.updateStoreMenu = (req, res) => {
-    const storeId = parseInt(req.params.id, 10);
-    const { menu } = req.body; 
+// Metodo para agregar una nueva tienda
+exports.addStore = async (req, res) => {
+    const { Nombre_restaurante, Descuentos, Menu, Ubicacion } = req.body;
 
-    const store = stores.find(store => store.id === storeId);
-    if (store) {
-        store.menu = menu;
-        res.json({ message: 'Menu actualizado.', storeId });
-    } else {
-        res.status(404).json({ message: 'Tienda no encontrada.' });
+    try {
+        const newStore = new Restaurant({ Nombre_restaurante, Descuentos, Menu, Ubicacion });
+        await newStore.save();
+        res.status(201).json(newStore);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al agregar la tienda.', error });
     }
 };
 
-// metodo para añadir una nueva tienda
-exports.addStore = (req, res) => {
-    const { name, description } = req.body; //aqui ontenemos la tienda del cuerpo de la solicitud
-    const newStore = { id: stores.length + 1, name, description, menu: [] };
-    stores.push(newStore);
-    res.status(201).json(newStore);
-};
-
-// metodo para añadir un producto al menu de una tienda
-exports.addProductToMenu = (req, res) => {
-    const storeId = parseInt(req.params.storeId, 10);
-    const { id, name, price, description } = req.body;
-
-    const store = stores.find(store => store.id === storeId);
-    if (store) {
-        store.menu.push({ id, name, price, description });
-        res.status(201).json({ message: 'Producto añadido al menú.', store });
-    } else {
-        res.status(404).json({ message: 'Tienda no encontrada.' });
+// Metodo para obtener todas las tiendas
+exports.getStores = async (req, res) => {
+    try {
+        const stores = await Restaurant.find();
+        res.status(200).json(stores);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener las tiendas.', error });
     }
 };
 
-// metodo para eliminar un producto del menu de una tienda
-exports.removeProductFromMenu = (req, res) => {
-    const storeId = parseInt(req.params.storeId, 10);
-    const productId = parseInt(req.params.productId, 10);
-
-    const store = stores.find(store => store.id === storeId);
-    if (store) {
-        store.menu = store.menu.filter(product => product.id !== productId);
-        res.json({ message: 'Producto eliminado del menú.', store });
-    } else {
-        res.status(404).json({ message: 'Tienda no encontrada.' });
-    }
-};
-
-//metodo para obtener una tienda específica por ID
-exports.getStoreById = (id) => {
-    return stores.find(store => store.id === id);
-};
+// Metodo para eliminar una tienda
+exports.deleteStore = async (req, res) => {
+    const { id } = req.params;
+    try {
+        await Restaurant.findByIdAndDelete(id);
+        res.status(200).json({ message: 'Tienda eliminada con éxito.' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al eliminar la tienda.', error });
+    }};

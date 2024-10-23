@@ -1,50 +1,44 @@
-// Simulación de tiendas y sus descripciones
-const stores = [
-  { id: 1, name: 'Cafetería Central', description: 'Cafetería con variedad de cafés y pasteles.' },
-  { id: 2, name: 'Restaurante Universitario', description: 'Comida casera y saludable.' },
-];
+// storeController.js
+const Restaurant = require('../models/Restaurant');
 
-// Simulación de menús para cada tienda
-const menus = {
-  1: [
-      { id: 1, name: 'Café', price: 2.5, description: 'Café caliente.' },
-      { id: 2, name: 'Pastel', price: 3.0, description: 'Pastel de chocolate.' },
-  ],
-  2: [
-      { id: 3, name: 'Ensalada', price: 5.0, description: 'Ensalada fresca.' },
-      { id: 4, name: 'Sopa', price: 4.0, description: 'Sopa del día.' },
-  ],
+// Obtener todas las tiendas (restaurantes)
+exports.getAllStores = async (req, res) => {
+    try {
+        const stores = await Restaurant.find();
+        res.status(200).json(stores);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener las tiendas.', error });
+    }
 };
 
-// Simulación de promociones para las tiendas
-const promotions = [
-  { id: 1, storeId: 1, description: '20% de descuento en todas las bebidas.' },
-  { id: 2, storeId: 2, description: 'Compra uno y lleva otro gratis en cualquier plato principal.' },
-];
+// Obtener el menu de una tienda específica
+exports.getMenu = async (req, res) => {
+    const storeId = req.params.storeId;
 
-// Obtener todas las tiendas
-exports.getStores = (req, res) => {
-  res.status(200).json(stores);
+    try {
+        const store = await Restaurant.findById(storeId);
+        if (store) {
+            res.status(200).json(store.Menu);
+        } else {
+            res.status(404).json({ message: 'Tienda no encontrada.' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error en el servidor.', error });
+    }
 };
 
-// Obtener el menú de una tienda específica
-exports.getMenu = (req, res) => {
-  const storeId = req.params.storeId;
-  const menu = menus[storeId];
-  if (menu) {
-      res.status(200).json(menu);
-  } else {
-      res.status(404).json({ message: 'Menu no encontrado.' });
-  }
-};
+// Obtener promociones de una tienda especifica
+exports.getPromotions = async (req, res) => {
+    const storeId = req.params.storeId;
 
-// Obtener promociones de una tienda específica
-exports.getPromotions = (req, res) => {
-  const storeId = parseInt(req.params.storeId, 10);
-  const storePromotions = promotions.filter(promotion => promotion.storeId === storeId);
-  if (storePromotions.length > 0) {
-      res.status(200).json(storePromotions);
-  } else {
-      res.status(404).json({ message: 'No se encontraron promociones para la tienda indicada..' });
-  }
+    try {
+        const store = await Restaurant.findById(storeId);
+        if (store && store.Descuentos) {
+            res.status(200).json(store.Descuentos);
+        } else {
+            res.status(404).json({ message: 'No se encontraron promociones para la tienda indicada.' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error en el servidor.', error });
+    }
 };

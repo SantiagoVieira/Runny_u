@@ -1,42 +1,73 @@
-// supportController.js
-
-let queries = []; // Almacenaremos las consultas que tenga soporte
-let queryIdCounter = 1; 
+const SupportQuery = require('../models/SupportQuery');
 
 // Enviar una consulta de soporte
-exports.sendSupportQuery = (req, res) => {
-    const { userId, query } = req.body; // Obtenemos el ID del usuario y la consulta
-    const newQuery = { id: queryIdCounter++, userId, query, response: null };
-    queries.push(newQuery);
-    res.status(201).json({ message: 'Consulta enviada a soporte.', query: newQuery });
-};
+exports.sendSupportQuery = async (req, res) => {
+    const { id_usuario, mensaje } = req.body; 
 
-// Obtener todas las consultas
-exports.getAllQueries = (req, res) => {
-    res.status(200).json(queries);
-};
+    // Validamos que id_usuario y mensaje exitan
+    if (!id_usuario || !mensaje) {
+        return res.status(400).json({ message: 'id_usuario y mensaje son obligatorios.' });
+    }
 
-// Obtener una consulta específica
-exports.getQueryById = (req, res) => {
-    const queryId = parseInt(req.params.id, 10);
-    const query = queries.find(q => q.id === queryId);
-    if (query) {
-        res.status(200).json(query);
-    } else {
-        res.status(404).json({ message: 'Consulta no encontrada.' });
+    try {
+        const newQuery = new SupportQuery({ id_usuario, mensaje });
+        await newQuery.save();
+        res.status(201).json({ message: 'Consulta enviada a soporte.', query: newQuery });
+    } catch (error) {
+        res.status(500).json({ message: 'Error al enviar la consulta a soporte.', error });
     }
 };
 
-// Responder a una consulta
-exports.respondToQuery = (req, res) => {
-    const queryId = parseInt(req.params.id, 10);
-    const { response } = req.body;
+// Obtener todas las consultas, con filtro opcional por estado
+exports.getAllQueries = async (req, res) => {
+    const { estado } = req.query; 
 
-    const query = queries.find(q => q.id === queryId);
-    if (query) {
-        query.response = response;
-        res.status(200).json({ message: 'Respuesta enviada con exito.', query });
-    } else {
-        res.status(404).json({ message: 'Consulta no encontrada.' });
+    try {
+        const queryFilter = estado ? { estado } : {};
+        const queries = await SupportQuery.find(queryFilter);
+        res.status(200).json(queries);
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener las consultas.', error });
+    }
+};
+
+// Obtener una consulta especifica por ID
+exports.getQueryById = async (req, res) => {
+    const queryId = req.params.id;
+
+    try {
+        const query = await SupportQuery.findById(queryId);
+        if (query) {
+            res.status(200).json(query);
+        } else {
+            res.status(404).json({ message: 'Consulta no encontrada.' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error al obtener la consulta.', error });
+    }
+};
+
+// Responder a una consulta y actualizar su estado a 'resuelto'
+exports.respondToQuery = async (req, res) => {
+    const queryId = req.params.id;
+    const { respuesta } = req.body;
+
+    // Validar que la respuesta este presente
+    if (!respuesta) {
+        return res.status(400).json({ message: 'La respuesta es obligatoria.' });
+    }
+
+    try {
+        const query = await SupportQuery.findById(queryId);
+        if (query) {
+            query.respuesta = respuesta;
+            query.estado = 'resuelto'; 
+            await query.save();
+            res.status(200).json({ message: 'Respuesta enviada con exito.', query });
+        } else {
+            res.status(404).json({ message: 'Consulta no encontrada.' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: 'Error al responder a la consulta.', error });
     }
 };

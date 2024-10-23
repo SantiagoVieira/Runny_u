@@ -1,19 +1,12 @@
 // supportRoutes.js
-
 const express = require('express');
 const router = express.Router();
 const supportController = require('../controllers/supportController');
 
-// Enviar una consulta de soporte
-router.post('/queries', supportController.sendSupportQuery);
-
-// Obtener todas las consultas
-router.get('/queries', supportController.getAllQueries);
-
-// Obtener una consulta específica
-router.get('/queries/:id', supportController.getQueryById);
-
-// Responder a una consulta
-router.post('/queries/:id/response', supportController.respondToQuery);
+// Rutas para consultas de soporte
+router.post('/sendQuery', supportController.sendSupportQuery);
+router.get('/getAllQueries', supportController.getAllQueries);
+router.get('/getQuery/:id', supportController.getQueryById);
+router.put('/respondQuery/:id', supportController.respondToQuery);
 
 module.exports = router;
