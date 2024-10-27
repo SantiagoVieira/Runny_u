@@ -14,9 +14,12 @@ const config = {
   authRequired: false,
   auth0Logout: true,
   secret: process.env.AUTH0_SECRET,
-  baseURL: process.env.BASE_URL,
+  baseURL: 'http://localhost:5000',
   clientID: process.env.AUTH0_CLIENT_ID,
-  issuerBaseURL: `https://${process.env.AUTH0_DOMAIN}`
+  issuerBaseURL: `https://${process.env.AUTH0_DOMAIN}`,
+  authorizationParams: {
+    redirect_uri: `${process.env.BASE_URL}/api/auth/callback`, // Asegúrate de que esto esté configurado
+  },
 };
 
 // Middlewares

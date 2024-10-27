@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Completar Perfil</title>
+</head>
+<body>
+    <h1>Completar Perfil</h1>
+    <form action="/api/auth/completeProfile" method="POST">
+        <label for="Correo_universitario">Correo Universitario:</label>
+        <input type="email" name="Correo_universitario" required><br>
+
+        <label for="Celular">Celular:</label>
+        <input type="tel" name="Celular" required><br>
+
+        <button type="submit">Completar Perfil</button>
+    </form>
+</body>
+</html>
