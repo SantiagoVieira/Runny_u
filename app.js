@@ -3,27 +3,12 @@
 require('dotenv').config();
 const express = require('express');
 const connectDB = require('./config/db');
-const { auth } = require('express-openid-connect');
 const app = express();
 
 // Conectar a MongoDB Atlas
 connectDB();
 
-// Configuración de Auth0 (inicio de sesion en microsoft)
-const config = {
-  authRequired: false,
-  auth0Logout: true,
-  secret: process.env.AUTH0_SECRET,
-  baseURL: 'http://localhost:5000',
-  clientID: process.env.AUTH0_CLIENT_ID,
-  issuerBaseURL: `https://${process.env.AUTH0_DOMAIN}`,
-  authorizationParams: {
-    redirect_uri: `${process.env.BASE_URL}/api/auth/callback`, // Asegúrate de que esto esté configurado
-  },
-};
-
 // Middlewares
-app.use(auth(config));   // Middleware de Auth0
 app.use(express.json());
 
 // Rutas

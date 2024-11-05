@@ -1,50 +1,58 @@
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');
 
-exports.handleAuthUser = async (req, res) => {
-  const { email: Correo_universitario } = req.oidc.user; // Obtiene el correo del usuario autenticado
+// Registro de usuario
+exports.registerUser = async (req, res) => {
+  const { Nombre_usuario, Correo_universitario, Celular, password } = req.body;
 
   try {
+    // Verificar si el usuario ya existe
     let user = await User.findOne({ Correo_universitario });
-
-    // Si el usuario ya existe, redirigir a la página principal
     if (user) {
-      return res.redirect('http://localhost:5000/api/restaurants/getAll'); // Página principal
+      return res.status(400).json({ msg: 'El usuario ya existe' });
     }
 
-    // Si el usuario no existe, redirigir a completar perfil
-    res.redirect(`${process.env.BASE_URL}/completeProfile.html`);
+    user = new User({
+      Nombre_usuario,
+      Correo_universitario,
+      Celular,
+      Billetera: 0,
+      Historial: [],
+      Calificacion_usuario: 0,
+      carrito_usuario: null
+    });
+
+    // Encriptar la contraseña antes de guardarla
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+
+    // Guardar el nuevo usuario en la base de datos
+    await user.save();
+    res.status(201).json({ msg: 'Usuario registrado con éxito' });
   } catch (error) {
     console.error(error.message);
     res.status(500).send('Error en el servidor');
   }
 };
 
-exports.completeProfile = async (req, res) => {
-  const { Correo_universitario, Celular } = req.body;
+// Inicio de sesión de usuario
+exports.loginUser = async (req, res) => {
+  const { Correo_universitario, password } = req.body;
 
   try {
+    // Verificar si el usuario existe
     let user = await User.findOne({ Correo_universitario });
-
-    // Crear usuario si no existe
     if (!user) {
-      user = new User({
-        Correo_universitario,
-        Celular,
-        Nombre_usuario: '',
-        Billetera: 0,
-        Historial: [],
-        Calificacion_usuario: 0,
-        carrito_usuario: null
-      });
-      await user.save();
-    } else {
-      // Actualizar número de celular si ya existe
-      user.Celular = Celular; 
-      await user.save();
+      return res.status(400).json({ msg: 'Usuario no encontrado' });
     }
 
-    // Redirigir a la página principal después de completar el perfil
-    res.redirect('http://localhost:5000/api/restaurants/getAll');
+    // Comparar la contraseña ingresada con la encriptada en la base de datos
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ msg: 'Contraseña incorrecta' });
+    }
+
+    res.json({ msg: 'Inicio de sesión exitoso', user });
   } catch (error) {
     console.error(error.message);
     res.status(500).send('Error en el servidor');
